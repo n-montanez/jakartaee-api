@@ -13,8 +13,10 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -51,13 +53,56 @@ public class BookResource {
     }
 
     @GET
-    public List<Book> getAll() {
-        return em.createQuery("SELECT b FROM Book b", Book.class).getResultList();
+    public Response getAll() {
+        List<Book> books = em.createQuery("SELECT b FROM Book b", Book.class).getResultList();
+        return Response.ok(books).build();
     }
 
     @GET
     @Path("/{id}")
-    public Book getById(@PathParam("id") UUID id) {
-        return em.find(Book.class, id);
+    public Response getById(@PathParam("id") UUID id) {
+        Book book = em.find(Book.class, id);
+
+        if (book == null)
+            return Response.status(Response.Status.NOT_FOUND).build();
+
+        return Response.ok(book).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") UUID id, CreateBookDTO dto) {
+        Book book = em.find(Book.class, id);
+
+        if (book == null)
+            return Response.status(Response.Status.NOT_FOUND).build();
+
+        if (!book.getTitle().equals(dto.getTitle()))
+            book.setTitle(dto.getTitle());
+
+        if (!book.getAuthor().getId().equals(dto.getAuthorId())) {
+            Author newAuthor = em.find(Author.class, dto.getAuthorId());
+
+            if (newAuthor == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Trying to update author to non existing id: " + dto.getAuthorId()).build();
+            }
+
+            book.setAuthor(newAuthor);
+        }
+
+        em.persist(book);
+
+        return Response.ok(book).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") UUID id) {
+        Book book = em.find(Book.class, id);
+        if (book != null)
+            em.remove(book);
+
+        return Response.noContent().build();
     }
 }
