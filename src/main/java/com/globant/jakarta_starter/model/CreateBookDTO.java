@@ -1,5 +1,7 @@
 package com.globant.jakarta_starter.model;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,5 +18,5 @@ public class CreateBookDTO {
     private String title;
 
     @NotNull
-    private Long authorId;
+    private UUID authorId;
 }
