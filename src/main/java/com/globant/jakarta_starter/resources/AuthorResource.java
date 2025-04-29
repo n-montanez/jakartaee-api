@@ -10,6 +10,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -32,7 +33,7 @@ public class AuthorResource {
     private EntityManager em;
 
     @POST
-    public Response create(CreateAuthorDTO dto) {
+    public Response create(@Valid CreateAuthorDTO dto) {
         Author author = Author.builder()
                 .name(dto.getName())
                 .build();
@@ -60,7 +61,7 @@ public class AuthorResource {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") UUID id, CreateAuthorDTO dto) {
+    public Response update(@PathParam("id") UUID id, @Valid CreateAuthorDTO dto) {
         Author author = em.find(Author.class, id);
 
         if (author == null)

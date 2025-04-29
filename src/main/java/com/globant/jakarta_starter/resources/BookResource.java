@@ -71,7 +71,7 @@ public class BookResource {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") UUID id, CreateBookDTO dto) {
+    public Response update(@PathParam("id") UUID id, @Valid CreateBookDTO dto) {
         Book book = em.find(Book.class, id);
 
         if (book == null)
