@@ -1,15 +1,13 @@
 package com.globant.jakarta_starter.resources;
 
-import java.util.List;
 import java.util.UUID;
 
-import com.globant.jakarta_starter.model.Author;
 import com.globant.jakarta_starter.model.Book;
 import com.globant.jakarta_starter.model.CreateBookDTO;
+import com.globant.jakarta_starter.services.BookService;
 
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -30,38 +28,24 @@ import jakarta.ws.rs.core.Response;
 @Transactional
 public class BookResource {
 
-    @PersistenceContext(unitName = "BooksPU")
-    private EntityManager em;
+    @Inject
+    private BookService bookService;
 
     @POST
     public Response create(@Valid CreateBookDTO dto) {
-        Author author = em.find(Author.class, dto.getAuthorId());
-
-        if (author == null) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Author not found with ID: " + dto.getAuthorId())
-                    .build();
-        }
-
-        Book book = Book.builder()
-                .title(dto.getTitle())
-                .author(author)
-                .build();
-        em.persist(book);
-
-        return Response.status(Response.Status.CREATED).entity(book).build();
+        bookService.createBook(dto);
+        return Response.status(Response.Status.CREATED).build();
     }
 
     @GET
     public Response getAll() {
-        List<Book> books = em.createQuery("SELECT b FROM Book b", Book.class).getResultList();
-        return Response.ok(books).build();
+        return Response.ok(bookService.getAllBooks()).build();
     }
 
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") UUID id) {
-        Book book = em.find(Book.class, id);
+        Book book = bookService.getBookById(id);
 
         if (book == null)
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -72,37 +56,14 @@ public class BookResource {
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") UUID id, @Valid CreateBookDTO dto) {
-        Book book = em.find(Book.class, id);
-
-        if (book == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
-
-        if (!book.getTitle().equals(dto.getTitle()))
-            book.setTitle(dto.getTitle());
-
-        if (!book.getAuthor().getId().equals(dto.getAuthorId())) {
-            Author newAuthor = em.find(Author.class, dto.getAuthorId());
-
-            if (newAuthor == null) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("Trying to update author to non existing id: " + dto.getAuthorId()).build();
-            }
-
-            book.setAuthor(newAuthor);
-        }
-
-        em.persist(book);
-
-        return Response.ok(book).build();
+        bookService.updateBook(dto);
+        return Response.ok(bookService.getBookById(id)).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") UUID id) {
-        Book book = em.find(Book.class, id);
-        if (book != null)
-            em.remove(book);
-
+        bookService.deleteBook(id);
         return Response.noContent().build();
     }
 }

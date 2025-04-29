@@ -1,14 +1,12 @@
 package com.globant.jakarta_starter.resources;
 
-import java.util.List;
 import java.util.UUID;
 
-import com.globant.jakarta_starter.model.Author;
 import com.globant.jakarta_starter.model.CreateAuthorDTO;
+import com.globant.jakarta_starter.services.AuthorService;
 
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -29,57 +27,37 @@ import jakarta.ws.rs.core.Response;
 @Transactional
 public class AuthorResource {
 
-    @PersistenceContext(unitName = "BooksPU")
-    private EntityManager em;
+    @Inject
+    private AuthorService authorService;
 
     @POST
     public Response create(@Valid CreateAuthorDTO dto) {
-        Author author = Author.builder()
-                .name(dto.getName())
-                .build();
-
-        em.persist(author);
-
-        return Response.status(Response.Status.CREATED).entity(author).build();
+        authorService.createAuthor(dto);
+        return Response.status(Response.Status.CREATED).build();
     }
 
     @GET
     public Response getAll() {
-        List<Author> authors = em.createQuery("SELECT a FROM Author a", Author.class).getResultList();
-        return Response.status(Response.Status.OK).entity(authors).build();
+        return Response.ok(authorService.getAllAuthors()).build();
     }
 
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") UUID id) {
-        Author author = em.find(Author.class, id);
-        if (author == null)
-            return Response.status(Response.Status.NOT_FOUND).entity("Author not found with ID: " + id).build();
-
-        return Response.status(Response.Status.OK).entity(author).build();
+        return Response.status(Response.Status.OK).entity(authorService.getAuthorById(id)).build();
     }
 
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") UUID id, @Valid CreateAuthorDTO dto) {
-        Author author = em.find(Author.class, id);
-
-        if (author == null)
-            return Response.status(Response.Status.NOT_FOUND).build();
-
-        author.setName(dto.getName());
-        em.persist(author);
-
-        return Response.ok(author).build();
+        authorService.updateAuthor(dto);
+        return Response.ok(authorService.getAuthorById(id)).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") UUID id) {
-        Author author = em.find(Author.class, id);
-        if (author != null)
-            em.remove(author);
-
+        authorService.deleteAuthor(id);
         return Response.noContent().build();
     }
 }
