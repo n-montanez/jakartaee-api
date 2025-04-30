@@ -23,8 +23,9 @@ public class AuthorDAO {
         return em.createQuery("SELECT a FROM Author a", Author.class).getResultList();
     }
 
-    public void save(Author author) {
+    public Author save(Author author) {
         em.persist(author);
+        return author;
     }
 
     public void remove(UUID id) {

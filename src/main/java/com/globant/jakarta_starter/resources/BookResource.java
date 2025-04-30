@@ -33,8 +33,8 @@ public class BookResource {
 
     @POST
     public Response create(@Valid CreateBookDTO dto) {
-        bookService.createBook(dto);
-        return Response.status(Response.Status.CREATED).build();
+        Book book = bookService.createBook(dto);
+        return Response.status(Response.Status.CREATED).entity(book).build();
     }
 
     @GET
@@ -56,8 +56,8 @@ public class BookResource {
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") UUID id, @Valid CreateBookDTO dto) {
-        bookService.updateBook(dto);
-        return Response.ok(bookService.getBookById(id)).build();
+        Book book = bookService.updateBook(dto);
+        return Response.ok(bookService.getBookById(id)).entity(book).build();
     }
 
     @DELETE

@@ -23,8 +23,9 @@ public class BookDAO {
         return em.createQuery("SELECT b FROM Book b", Book.class).getResultList();
     }
 
-    public void save(Book book) {
+    public Book save(Book book) {
         em.persist(book);
+        return book;
     }
 
     public void remove(UUID id) {

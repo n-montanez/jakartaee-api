@@ -2,6 +2,7 @@ package com.globant.jakarta_starter.resources;
 
 import java.util.UUID;
 
+import com.globant.jakarta_starter.model.Author;
 import com.globant.jakarta_starter.model.CreateAuthorDTO;
 import com.globant.jakarta_starter.services.AuthorService;
 
@@ -32,8 +33,8 @@ public class AuthorResource {
 
     @POST
     public Response create(@Valid CreateAuthorDTO dto) {
-        authorService.createAuthor(dto);
-        return Response.status(Response.Status.CREATED).build();
+        Author author = authorService.createAuthor(dto);
+        return Response.status(Response.Status.CREATED).entity(author).build();
     }
 
     @GET
@@ -50,8 +51,8 @@ public class AuthorResource {
     @PUT
     @Path("/{id}")
     public Response update(@PathParam("id") UUID id, @Valid CreateAuthorDTO dto) {
-        authorService.updateAuthor(dto);
-        return Response.ok(authorService.getAuthorById(id)).build();
+        Author author = authorService.updateAuthor(dto);
+        return Response.ok(authorService.getAuthorById(id)).entity(author).build();
     }
 
     @DELETE

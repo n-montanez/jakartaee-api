@@ -33,7 +33,7 @@ public class BookService {
         return bookDAO.findAll();
     }
 
-    public void createBook(CreateBookDTO bookDTO) {
+    public Book createBook(CreateBookDTO bookDTO) {
         Author author = authorDAO.findById(bookDTO.getAuthorId());
 
         if (author == null)
@@ -44,15 +44,15 @@ public class BookService {
                 .author(author)
                 .build();
 
-        bookDAO.save(book);
+        return bookDAO.save(book);
     }
 
-    public void updateBook(CreateBookDTO bookDTO) {
+    public Book updateBook(CreateBookDTO bookDTO) {
         Book book = Book.builder()
                 .title(bookDTO.getTitle())
                 .build();
 
-        bookDAO.save(book);
+        return bookDAO.save(book);
     }
 
     public void deleteBook(UUID id) {

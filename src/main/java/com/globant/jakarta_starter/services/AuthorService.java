@@ -28,20 +28,20 @@ public class AuthorService {
         return authorDAO.findAll();
     }
 
-    public void createAuthor(CreateAuthorDTO authorDTO) {
+    public Author createAuthor(CreateAuthorDTO authorDTO) {
         Author author = Author.builder()
                 .name(authorDTO.getName())
                 .build();
 
-        authorDAO.save(author);
+        return authorDAO.save(author);
     }
 
-    public void updateAuthor(CreateAuthorDTO authorDTO) {
+    public Author updateAuthor(CreateAuthorDTO authorDTO) {
         Author author = Author.builder()
                 .name(authorDTO.getName())
                 .build();
 
-        authorDAO.save(author);
+        return authorDAO.save(author);
     }
 
     public void deleteAuthor(UUID id) {
